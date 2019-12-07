@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="peace_shillong.kint" >
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/icon"
+        android:label="Greek Interlinear New Testament"
+        android:theme="@style/AppTheme" >
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="com.peace_shillong.kint.provider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <!-- ressource file to create -->
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths"></meta-data>
+        </provider>
+        <activity
+            android:configChanges="orientation|screenSize|keyboardHidden"
+            android:name="peace_shillong.kint.SelectionActivity"
+            android:label="Greek Interlinear New Testament"
+            android:theme="@style/Theme.AppCompat.NoActionBar">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="peace_shillong.kint.MainActivity"
+            android:label="@string/app_name" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="peace_shillong.kint.SelectionActivity" />
+        </activity>
+        <activity
+            android:name="peace_shillong.kint.SettingsActivity"
+            android:label="@string/title_activity_settings" >
+        </activity>
+    </application>
+
+</manifest>

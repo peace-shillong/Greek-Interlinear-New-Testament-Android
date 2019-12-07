@@ -1,0 +1,21 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <CheckBoxPreference
+        android:key="show_strongs"
+        android:title="Show Strongs reference"
+        android:summary="This shows the strongs reference/numbers to the word. Tapping at it shows the entry."
+        android:defaultValue="true" />
+
+    <CheckBoxPreference
+        android:key="show_concordance"
+        android:title="Show Strongs Concordance"
+        android:summary="It shows the concordance translation of the word."
+        android:defaultValue="true" />
+
+    <CheckBoxPreference
+        android:key="show_functional"
+        android:title="Show Functional Items"
+        android:summary="Shows the grammatical/functional entry. Tapping at it shows the entry."
+        android:defaultValue="true" />
+
+</PreferenceScreen>

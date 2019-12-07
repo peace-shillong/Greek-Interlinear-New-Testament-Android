@@ -81,3 +81,9 @@ lint/generated/
 lint/outputs/
 lint/tmp/
 # lint/reports/
+.gradle
+/local.properties
+/.idea/workspace.xml
+/.idea/libraries
+.DS_Store
+/build
