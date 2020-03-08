@@ -15,8 +15,8 @@ android {
         applicationId "peace_shillong.kint"
         minSdkVersion 15
         targetSdkVersion 28
-        versionCode 1
-        versionName "1.0"
+        versionCode 2
+        versionName "1.0.2"
         //signingConfig signingConfigs.sign
     }
     buildTypes {

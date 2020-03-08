@@ -14,6 +14,7 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -40,12 +41,16 @@ public class MainActivity extends AppCompatActivity implements ActivityObjectPro
     }
 
     private void initializeData(List<Word> words) {
-        map = new HashMap<>();
-        for(Word word : words) {
-            if(!map.containsKey(word.getVerse_nr()))
-                map.put(word.getVerse_nr(), new ArrayList<Word>());
+        try {
+            map = new HashMap<>();
+            for (Word word : words) {
+                if (!map.containsKey(word.getVerse_nr()))
+                    map.put(word.getVerse_nr(), new ArrayList<Word>());
 
-            map.get(word.getVerse_nr()).add(word);
+                map.get(word.getVerse_nr()).add(word);
+            }
+        }catch (NullPointerException e){
+
         }
     }
 
@@ -65,19 +70,23 @@ public class MainActivity extends AppCompatActivity implements ActivityObjectPro
 
         DatabaseManager manager = DatabaseManager.getInstance();
         List<Word> words = manager.getChapter(book, chapter);
+        try {
+            initializeData(words);
 
-        initializeData(words);
+            setActionBarTitle(String.format("%s %d:%d", book, this.chapter, verse));
 
-        setActionBarTitle(String.format("%s %d:%d", book, this.chapter, verse));
+            myPagerAdapter = new MyPagerAdapter(getSupportFragmentManager());
 
-        myPagerAdapter = new MyPagerAdapter(getSupportFragmentManager());
-
-        final ViewPager myPager = (ViewPager) findViewById(R.id.home_panels_pager);
-        myPager.setOverScrollMode(View.OVER_SCROLL_NEVER);
-        myPager.setOffscreenPageLimit(5);
-        myPager.setAdapter(myPagerAdapter);
-        myPager.setCurrentItem(verse - 1);
-        myPager.setOnPageChangeListener(new CircularViewPagerHandler(myPager));
+            final ViewPager myPager = (ViewPager) findViewById(R.id.home_panels_pager);
+            myPager.setOverScrollMode(View.OVER_SCROLL_NEVER);
+            myPager.setOffscreenPageLimit(5);
+            myPager.setAdapter(myPagerAdapter);
+            myPager.setCurrentItem(verse - 1);
+            myPager.addOnPageChangeListener(new CircularViewPagerHandler(myPager));
+            //addOnPageChangeListener replaces setonpagechangelistener
+        }catch (Exception e){
+            Toast.makeText(this, "Unable to load data", Toast.LENGTH_SHORT).show();
+        }
     }
 
     @Override
