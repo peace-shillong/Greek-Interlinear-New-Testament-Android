@@ -8,6 +8,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -16,7 +17,9 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.google.firebase.analytics.FirebaseAnalytics;
 import com.karumi.dexter.Dexter;
 import com.karumi.dexter.PermissionToken;
 import com.karumi.dexter.listener.PermissionDeniedResponse;
@@ -44,6 +47,7 @@ public class SelectionActivity extends AppCompatActivity {
     private int verse;
     private Button buttonGo;
     private TextView permissionText;
+    private FirebaseAnalytics mFirebaseAnalytics;
 
     private SQLiteDatabase initializeDatabase(Context context) {
         DataBaseHelper dataBaseHelper = new DataBaseHelper(context);
@@ -65,11 +69,22 @@ public class SelectionActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_selection);
 
+        DatabaseManager.init(SelectionActivity.this);
+        DatabaseManager instance = DatabaseManager.getInstance();
+
+        if(database==null)
+        {
+            database = initializeDatabase(SelectionActivity.this);
+            Log.d("Database","INIT");
+        }
+
+        navigator = new BookNavigator(database);
+
         //request permission
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             //Log.d("Load","Permission");
             permissionText=findViewById(R.id.textView_permission);
-            Dexter.withActivity(this)
+            Dexter.withActivity(SelectionActivity.this)
                     .withPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
                     .withListener(new PermissionListener() {
                         @Override public void onPermissionGranted(PermissionGrantedResponse response) {
@@ -85,122 +100,141 @@ public class SelectionActivity extends AppCompatActivity {
                     }).check();
         }
 
-        buttonGo = (Button) findViewById(R.id.buttonGo);
-        buttonGo.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent i = new Intent(getApplicationContext(), MainActivity.class);
 
-                Bundle bundle = new Bundle();
-                bundle.putString("book", book);
-                bundle.putInt("chapter", chapter);
-                bundle.putInt("verse", verse);
-                i.putExtras(bundle);
 
-                startActivity(i);
-            }
-        });
+            buttonGo = (Button) findViewById(R.id.buttonGo);
+            buttonGo.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent i = new Intent(getApplicationContext(), MainActivity.class);
+                    if(chapter==0)
+                        chapter=1;
+                    if(verse==0)
+                        verse=1;
+                    Bundle bundle = new Bundle();
+                    bundle.putString("book", book);
+                    bundle.putInt("chapter", chapter);
+                    bundle.putInt("verse", verse);
+                    i.putExtras(bundle);
+                    startActivity(i);
+                }
+            });
 
-        DatabaseManager.init(this);
-        DatabaseManager instance = DatabaseManager.getInstance();
+            // Obtain the FirebaseAnalytics instance.
+            mFirebaseAnalytics = FirebaseAnalytics.getInstance(SelectionActivity.this);
 
-        navigator = new BookNavigator(database);
+            Bundle bundle = new Bundle();
+            bundle.putString(FirebaseAnalytics.Param.ITEM_ID, "1");
+            bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, "KINT");
+            mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle);
+            //Log.d("DATA","Wow");
 
-        spinnerBooks = (Spinner) findViewById(R.id.spinnerbooks);
-        spinnerVerses = (Spinner) findViewById(R.id.spinnerverses);
-        spinnerChapters = (Spinner)findViewById(R.id.spinnerchapters);
+            //set Defualt Book and chapters
 
-        spinnerBooks.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                Object itemAtPosition = parent.getItemAtPosition(position);
+            spinnerBooks = (Spinner) findViewById(R.id.spinnerbooks);
+            spinnerVerses = (Spinner) findViewById(R.id.spinnerverses);
+            spinnerChapters = (Spinner)findViewById(R.id.spinnerchapters);
 
-                HashMap<String, String> map = new HashMap<>();
-                map.put("Matthew", "Matt");
-                map.put("Mark", "Mark");
-                map.put("Luke", "Luke");
-                map.put("John", "John");
-                map.put("Acts", "Acts");
-                map.put("Romans", "Rom");
-                map.put("1 Corinthians", "1Cor");
-                map.put("2 Corinthians", "2Cor");
-                map.put("Galatians", "Gal");
-                map.put("Ephesians", "Eph");
-                map.put("Philippians", "Phil");
-                map.put("Colossians", "Col");
-                map.put("1 Thessalonians", "1Thess");
-                map.put("2 Thessalonians", "2Thess");
-                map.put("1 Timothy", "1Tim");
-                map.put("2 Timothy", "2Tim");
-                map.put("Titus", "Titus");
-                map.put("Philemon", "Phlm");
-                map.put("Hebrews", "Heb");
-                map.put("James", "Jas");
-                map.put("1 Peter", "1Pet");
-                map.put("2 Peter", "2Pet");
-                map.put("1 John", "1John");
-                map.put("2 John", "2John");
-                map.put("3 John", "3John");
-                map.put("Jude", "Jude");
-                map.put("Revelation", "Rev");
+            List<String> list = navigator.getChapters("Matt"); //temporary fix for Chapters in Genesis on Nokia Phones
+            ArrayAdapter<String> dataAdapter = new ArrayAdapter<>(SelectionActivity.this, android.R.layout.simple_spinner_item, list);
+            dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            spinnerChapters.setAdapter(dataAdapter);
 
-                book = map.get(itemAtPosition);
+            spinnerBooks.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                @Override
+                public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                    Object itemAtPosition = parent.getItemAtPosition(position);
 
-                if (view != null) {
-                    List<String> list = navigator.getChapters(book);
-                    ArrayAdapter<String> dataAdapter = new ArrayAdapter<>(view.getContext(), android.R.layout.simple_spinner_item, list);
+                    HashMap<String, String> map = new HashMap<>();
+                    map.put("Matthew", "Matt");
+                    map.put("Mark", "Mark");
+                    map.put("Luke", "Luke");
+                    map.put("John", "John");
+                    map.put("Acts", "Acts");
+                    map.put("Romans", "Rom");
+                    map.put("1 Corinthians", "1Cor");
+                    map.put("2 Corinthians", "2Cor");
+                    map.put("Galatians", "Gal");
+                    map.put("Ephesians", "Eph");
+                    map.put("Philippians", "Phil");
+                    map.put("Colossians", "Col");
+                    map.put("1 Thessalonians", "1Thess");
+                    map.put("2 Thessalonians", "2Thess");
+                    map.put("1 Timothy", "1Tim");
+                    map.put("2 Timothy", "2Tim");
+                    map.put("Titus", "Titus");
+                    map.put("Philemon", "Phlm");
+                    map.put("Hebrews", "Heb");
+                    map.put("James", "Jas");
+                    map.put("1 Peter", "1Pet");
+                    map.put("2 Peter", "2Pet");
+                    map.put("1 John", "1John");
+                    map.put("2 John", "2John");
+                    map.put("3 John", "3John");
+                    map.put("Jude", "Jude");
+                    map.put("Revelation", "Rev");
+
+                    book = map.get(itemAtPosition);
+                    Log.d("BOOK SELECTED",book+" - "+itemAtPosition);
+
+                    if (view != null) {
+                        List<String> list = navigator.getChapters(book);
+                        ArrayAdapter<String> dataAdapter = new ArrayAdapter<>(SelectionActivity.this, android.R.layout.simple_spinner_item, list);
+                        dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                        spinnerChapters.setAdapter(dataAdapter);
+                    }
+                }
+
+                @Override
+                public void onNothingSelected(AdapterView<?> parent) {
+
+                }
+            });
+
+            spinnerChapters.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                @Override
+                public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                    Object itemAtPosition = parent.getItemAtPosition(position);
+
+                    try {
+                        chapter = Integer.parseInt(itemAtPosition.toString());
+                    } catch(NumberFormatException exception) {
+                        exception.printStackTrace();
+                        Toast.makeText(SelectionActivity.this, "Error "+exception.getMessage(), Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                    List<String> list = navigator.getVerses(book, chapter);
+                    ArrayAdapter<String> dataAdapter = new ArrayAdapter<>(SelectionActivity.this, android.R.layout.simple_spinner_item, list);
                     dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-                    spinnerChapters.setAdapter(dataAdapter);
-                }
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-
-            }
-        });
-
-        spinnerChapters.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                Object itemAtPosition = parent.getItemAtPosition(position);
-
-                try {
-                    chapter = Integer.parseInt(itemAtPosition.toString());
-                } catch(NumberFormatException exception) {
-                    exception.printStackTrace();
-                    return;
+                    spinnerVerses.setAdapter(dataAdapter);
                 }
 
-                List<String> list = navigator.getVerses(book, chapter);
-                ArrayAdapter<String> dataAdapter = new ArrayAdapter<>(parent.getContext(), android.R.layout.simple_spinner_item, list);
-                dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-                spinnerVerses.setAdapter(dataAdapter);
-            }
+                @Override
+                public void onNothingSelected(AdapterView<?> parent) {
 
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-
-            }
-        });
-
-        spinnerVerses.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                Object itemAtPosition = parent.getItemAtPosition(position);
-
-                try {
-                    verse = Integer.parseInt((String)itemAtPosition);
-                } catch(NumberFormatException e) {
-                    e.printStackTrace();
                 }
-            }
+            });
 
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
+            spinnerVerses.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                @Override
+                public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                    Object itemAtPosition = parent.getItemAtPosition(position);
 
-            }
-        });
+                    try {
+                        verse = Integer.parseInt((String)itemAtPosition);
+                    } catch(NumberFormatException e) {
+                        e.printStackTrace();
+                        Toast.makeText(SelectionActivity.this, "Error "+e.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                }
+
+                @Override
+                public void onNothingSelected(AdapterView<?> parent) {
+
+                }
+            });
+
     }
 
     @Override

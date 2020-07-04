@@ -202,16 +202,17 @@ public class VerseFragment extends Fragment {
         textViewFunctional.setTextAppearance(context, android.R.style.TextAppearance_Small);
         textViewFunctional.setTextColor(Color.rgb(77, 179, 179));
         textViewFunctional.setTag("textViewFunctional" + index);
-        textViewFunctional.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                String result = PosParser.get((String) ((TextView) v).getText());
-
-                Toast toast = Toast.makeText(v.getContext(), result, Toast.LENGTH_LONG);
-                toast.show();
-            }
-        });
+        //commented on July 4th
+//        textViewFunctional.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//
+//                String result = PosParser.get((String) ((TextView) v).getText());
+//
+//                Toast toast = Toast.makeText(v.getContext(), result, Toast.LENGTH_LONG);
+//                toast.show();
+//            }
+//        });
 
         textViewStrongs.setText(words.get(index).getStrongs());
         textViewWord.setText(words.get(index).getWord());

@@ -16,6 +16,8 @@ import android.preference.PreferenceManager;
 import android.preference.RingtonePreference;
 import android.text.TextUtils;
 
+import com.google.firebase.analytics.FirebaseAnalytics;
+
 import peace_shillong.kint.R;
 
 import java.util.List;
@@ -39,13 +41,20 @@ public class SettingsActivity extends PreferenceActivity {
      * shown on tablets.
      */
     private static final boolean ALWAYS_SIMPLE_PREFS = false;
-
+    private FirebaseAnalytics mFirebaseAnalytics;
 
     @Override
     protected void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
-
-        setupSimplePreferencesScreen();
+        try {
+            setupSimplePreferencesScreen();
+        }catch (Exception e){
+            e.printStackTrace();
+            mFirebaseAnalytics = FirebaseAnalytics.getInstance(SettingsActivity.this);
+            Bundle bundle = new Bundle();
+            bundle.putString(FirebaseAnalytics.Param.ITEM_ID, "Settings Error");
+            bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, e.getMessage());
+            mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle);}
     }
 
     /**
@@ -54,7 +63,7 @@ public class SettingsActivity extends PreferenceActivity {
      * shown.
      */
     private void setupSimplePreferencesScreen() {
-        if (!isSimplePreferences(this)) {
+        if (!isSimplePreferences(SettingsActivity.this)) {
             return;
         }
 
@@ -90,7 +99,7 @@ public class SettingsActivity extends PreferenceActivity {
      */
     @Override
     public boolean onIsMultiPane() {
-        return isXLargeTablet(this) && !isSimplePreferences(this);
+        return isXLargeTablet(SettingsActivity.this) && !isSimplePreferences(SettingsActivity.this);
     }
 
     /**
@@ -121,7 +130,7 @@ public class SettingsActivity extends PreferenceActivity {
     @Override
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     public void onBuildHeaders(List<Header> target) {
-        if (!isSimplePreferences(this)) {
+        if (!isSimplePreferences(SettingsActivity.this)) {
             loadHeadersFromResource(R.xml.pref_headers, target);
         }
     }

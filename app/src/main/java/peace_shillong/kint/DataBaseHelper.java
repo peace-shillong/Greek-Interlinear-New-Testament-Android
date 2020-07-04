@@ -103,10 +103,13 @@ public class DataBaseHelper extends OrmLiteSqliteOpenHelper {
     private boolean checkDataBase(){
 
         SQLiteDatabase checkDB = null;
+        File dbFile=null;
 
         try{
             String myPath = DB_PATH + DB_NAME;
-            checkDB = SQLiteDatabase.openDatabase(myPath, null, SQLiteDatabase.OPEN_READONLY);
+            //checkDB = SQLiteDatabase.openDatabase(myPath, null, SQLiteDatabase.OPEN_READONLY);
+            dbFile = myContext.getDatabasePath(DB_NAME);
+            return dbFile.exists();
 
         }catch(SQLiteException e){
 
@@ -120,7 +123,11 @@ public class DataBaseHelper extends OrmLiteSqliteOpenHelper {
 
         }
 
-        return checkDB != null ? true : false;
+        if(dbFile.exists())
+        {
+            return true;
+        }
+        return false;
     }
 
     /**

@@ -59,9 +59,9 @@ public class MainActivity extends AppCompatActivity implements ActivityObjectPro
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        typeface = Typeface.createFromAsset(this.getAssets(), "fonts/Cardo104s.ttf");
+        typeface = Typeface.createFromAsset(MainActivity.this.getAssets(), "fonts/Cardo104s.ttf");
 
-        DatabaseManager.init(this);
+        DatabaseManager.init(MainActivity.this);
 
         bundle = getIntent().getExtras();
         book = bundle.getString("book");
@@ -73,7 +73,7 @@ public class MainActivity extends AppCompatActivity implements ActivityObjectPro
         try {
             initializeData(words);
 
-            setActionBarTitle(String.format("%s %d:%d", book, this.chapter, verse));
+            setActionBarTitle(String.format("%s %d:%d", book, MainActivity.this.chapter, verse));
 
             myPagerAdapter = new MyPagerAdapter(getSupportFragmentManager());
 
@@ -85,13 +85,13 @@ public class MainActivity extends AppCompatActivity implements ActivityObjectPro
             myPager.addOnPageChangeListener(new CircularViewPagerHandler(myPager));
             //addOnPageChangeListener replaces setonpagechangelistener
         }catch (Exception e){
-            Toast.makeText(this, "Unable to load data", Toast.LENGTH_SHORT).show();
+            Toast.makeText(MainActivity.this, "Unable to load data", Toast.LENGTH_SHORT).show();
         }
     }
 
     @Override
     public SQLiteDatabase getDatabase() {
-        return this.database;
+        return MainActivity.this.database;
     }
 
     @Override
@@ -111,7 +111,7 @@ public class MainActivity extends AppCompatActivity implements ActivityObjectPro
     public Bundle getPreferences() {
 
         SharedPreferences sharedPrefs = PreferenceManager
-                .getDefaultSharedPreferences(this);
+                .getDefaultSharedPreferences(MainActivity.this);
 
         Bundle bundle = new Bundle();
         bundle.putBoolean("show_strongs", sharedPrefs.getBoolean("show_strongs", true));
@@ -216,7 +216,7 @@ public class MainActivity extends AppCompatActivity implements ActivityObjectPro
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
-            Intent i = new Intent(this, SettingsActivity.class);
+            Intent i = new Intent(MainActivity.this, SettingsActivity.class);
             startActivityForResult(i, RESULT_SETTINGS);
             return true;
         }
