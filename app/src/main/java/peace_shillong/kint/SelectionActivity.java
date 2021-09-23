@@ -15,6 +15,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -37,9 +38,10 @@ import peace_shillong.model.DatabaseManager;
 
 public class SelectionActivity extends AppCompatActivity {
 
-    private Spinner spinnerChapters;
     private Spinner spinnerBooks;
+    private Spinner spinnerChapters;
     private Spinner spinnerVerses;
+    private EditText verseEditText,chapterEditText;
     private SQLiteDatabase database;
     private BookNavigator navigator;
     private String book;
@@ -57,7 +59,9 @@ public class SelectionActivity extends AppCompatActivity {
             dataBaseHelper.createDataBase();
             database = dataBaseHelper.getReadableDatabase();
         } catch (IOException e) {
+
             e.printStackTrace();
+            Toast.makeText(context, "DATABASE CREATION FAILED", Toast.LENGTH_LONG).show();
         }
         return database;
     }
@@ -71,6 +75,10 @@ public class SelectionActivity extends AppCompatActivity {
 
         DatabaseManager.init(SelectionActivity.this);
         DatabaseManager instance = DatabaseManager.getInstance();
+        verseEditText= findViewById(R.id.versetext);
+        chapterEditText= findViewById(R.id.chapterstext);
+        verseEditText.setVisibility(View.GONE);
+        chapterEditText.setVisibility(View.GONE);
 
         if(database==null)
         {
@@ -107,6 +115,12 @@ public class SelectionActivity extends AppCompatActivity {
                 @Override
                 public void onClick(View v) {
                     Intent i = new Intent(getApplicationContext(), MainActivity.class);
+//                    if(chapterEditText.getText().toString().length()>0)
+//                        chapter= Integer.parseInt(chapterEditText.getText().toString());
+//                    if(verseEditText.getText().toString().length()>0)
+//                        verse= Integer.parseInt(verseEditText.getText().toString());
+                    chapter= Integer.parseInt(spinnerChapters.getSelectedItem().toString());
+                    verse= Integer.parseInt(spinnerVerses.getSelectedItem().toString());
                     if(chapter==0)
                         chapter=1;
                     if(verse==0)
@@ -129,11 +143,13 @@ public class SelectionActivity extends AppCompatActivity {
             mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle);
             //Log.d("DATA","Wow");
 
-            //set Defualt Book and chapters
+            //set Default Book and chapters
 
             spinnerBooks = (Spinner) findViewById(R.id.spinnerbooks);
             spinnerVerses = (Spinner) findViewById(R.id.spinnerverses);
             spinnerChapters = (Spinner)findViewById(R.id.spinnerchapters);
+            spinnerVerses.setVisibility(View.VISIBLE);
+            spinnerChapters.setVisibility(View.VISIBLE);
 
             List<String> list = navigator.getChapters("Matt"); //temporary fix for Chapters in Genesis on Nokia Phones
             ArrayAdapter<String> dataAdapter = new ArrayAdapter<>(SelectionActivity.this, android.R.layout.simple_spinner_item, list);
@@ -196,13 +212,17 @@ public class SelectionActivity extends AppCompatActivity {
                 public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                     Object itemAtPosition = parent.getItemAtPosition(position);
 
-                    try {
-                        chapter = Integer.parseInt(itemAtPosition.toString());
-                    } catch(NumberFormatException exception) {
-                        exception.printStackTrace();
-                        Toast.makeText(SelectionActivity.this, "Error "+exception.getMessage(), Toast.LENGTH_SHORT).show();
-                        return;
-                    }
+                    //try {
+                        String item =itemAtPosition.toString();
+                        item=item.replaceAll("[^0-9]]","");
+                        if(item.length()==0)
+                            item="1";
+                        chapter = Integer.parseInt(item);
+                    //} catch(NumberFormatException exception) {
+                      //  exception.printStackTrace();
+                        //Toast.makeText(SelectionActivity.this, "Error "+exception.getMessage(), Toast.LENGTH_SHORT).show();
+                        //return;
+                    //}
 
                     List<String> list = navigator.getVerses(book, chapter);
                     ArrayAdapter<String> dataAdapter = new ArrayAdapter<>(SelectionActivity.this, android.R.layout.simple_spinner_item, list);
@@ -220,9 +240,12 @@ public class SelectionActivity extends AppCompatActivity {
                 @Override
                 public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                     Object itemAtPosition = parent.getItemAtPosition(position);
-
-                    try {
-                        verse = Integer.parseInt((String)itemAtPosition);
+                    try{
+                    String item =itemAtPosition.toString();
+                    item=item.replaceAll("[^0-9]]","");
+                    if(item.length()==0)
+                        item="1";
+                        verse = Integer.parseInt(item);
                     } catch(NumberFormatException e) {
                         e.printStackTrace();
                         Toast.makeText(SelectionActivity.this, "Error "+e.getMessage(), Toast.LENGTH_SHORT).show();

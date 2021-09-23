@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "1006737199604",
+    "firebase_url": "https://gint-master.firebaseio.com",
+    "project_id": "gint-master",
+    "storage_bucket": "gint-master.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1006737199604:android:a9b5ff5fb35260bb4ae9a1",
+        "android_client_info": {
+          "package_name": "peace_shillong.kint"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1006737199604-4hogiib72hpt63uedcgku6f9hfv9u5t5.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "peace_shillong.kint",
+            "certificate_hash": "ae5cffbc092c2d0e2fd909674200d947700f8a45"
+          }
+        },
+        {
+          "client_id": "1006737199604-bvdoibb3pcni42dtd37l8fjotd79ktgo.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAq-EvvNHNboaRJZQpc3fQbD29IzP5pLq4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1006737199604-bvdoibb3pcni42dtd37l8fjotd79ktgo.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

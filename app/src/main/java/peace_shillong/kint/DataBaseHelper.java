@@ -1,5 +1,6 @@
 package peace_shillong.kint;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.database.SQLException;
@@ -23,13 +24,13 @@ import peace_shillong.model.Word;
 
 public class DataBaseHelper extends OrmLiteSqliteOpenHelper {
 
-    private static String DB_PATH = "/data/data/peace_shillong.kint/databases/";
+    private static String DB_PATH =  "/data/data/peace_shillong.kint/databases/";//""/data/data/peace_shillong.kint/databases/";
 
-    private static String DB_NAME = "test_db";
+    private static String DB_NAME = "test_db.sqlite";
 
     private static final String SP_KEY_DB_VER = "db_ver";
 
-    private static final int DB_VERSION = 1;
+    private static final int DB_VERSION = 3;
 
     private SQLiteDatabase myDataBase;
 
@@ -40,10 +41,14 @@ public class DataBaseHelper extends OrmLiteSqliteOpenHelper {
      * Takes and keeps a reference of the passed context in order to access to the application assets and resources.
      * @param context
      */
+    @SuppressLint("SdCardPath")
     public DataBaseHelper(Context context) {
-
         super(context, DB_NAME, null, DB_VERSION);
         this.myContext = context;
+//        DB_PATH=context.getDatabasePath("").getPath();
+        DB_PATH=context.getFilesDir().getAbsolutePath().replace("files", "databases") + File.separator;//"/data/data/peace_shillong.kint/databases/";
+
+        Log.e("DATABASE",DB_PATH);
         initialize();
     }
 
@@ -53,7 +58,7 @@ public class DataBaseHelper extends OrmLiteSqliteOpenHelper {
                     .getDefaultSharedPreferences(myContext);
             int dbVersion = prefs.getInt(SP_KEY_DB_VER, 1);
             if (DB_VERSION != dbVersion) {
-                File dbFile = myContext.getDatabasePath(DB_NAME);
+                File dbFile = myContext.getDatabasePath(DB_PATH);
                 if (!dbFile.delete()) {
                     Log.w("peace_shillong.kint", "Unable to update database");
                 }
@@ -106,24 +111,22 @@ public class DataBaseHelper extends OrmLiteSqliteOpenHelper {
         File dbFile=null;
 
         try{
-            String myPath = DB_PATH + DB_NAME;
             //checkDB = SQLiteDatabase.openDatabase(myPath, null, SQLiteDatabase.OPEN_READONLY);
+            String myPath = DB_PATH + DB_NAME;
+            checkDB = SQLiteDatabase.openDatabase(myPath, null, SQLiteDatabase.OPEN_READONLY);//trying for old files
             dbFile = myContext.getDatabasePath(DB_NAME);
-            return dbFile.exists();
+            //return dbFile.exists();
 
         }catch(SQLiteException e){
-
             //database does't exist yet.
 
         }
 
         if(checkDB != null){
-
             checkDB.close();
-
         }
 
-        if(dbFile.exists())
+        if(dbFile!=null && dbFile.exists())
         {
             return true;
         }
@@ -151,6 +154,7 @@ public class DataBaseHelper extends OrmLiteSqliteOpenHelper {
         int length;
         while ((length = myInput.read(buffer))>0){
             myOutput.write(buffer, 0, length);
+//            Log.e("DATA","COPYING");
         }
 
         //Close the streams
