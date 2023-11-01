@@ -11,14 +11,14 @@ android {
             storePassword 'topica'
         }
     }
-    compileSdkVersion 30
-    buildToolsVersion "29.0.3"
+    compileSdkVersion 33
     defaultConfig {
         applicationId "peace_shillong.kint"
-        minSdkVersion 18
-        targetSdkVersion 30
-        versionCode 6
-        versionName "1.1.0"
+        minSdkVersion 21
+        targetSdkVersion 33
+        versionCode 7
+        versionName "1.1.1"
+        multiDexEnabled true
         //signingConfig signingConfigs.sign
     }
     buildTypes {
@@ -44,16 +44,16 @@ android {
 dependencies {
     api fileTree(include: ['*.jar'], dir: 'libs')
     implementation files('libs/opencsv/opencsv-2.4.jar')
-    implementation 'com.google.firebase:firebase-core:17.4.3'
+    implementation 'com.google.firebase:firebase-core:21.1.1'
     testImplementation 'junit:junit:4.12'
     testImplementation 'org.robolectric:robolectric:3.+'
-    implementation 'androidx.appcompat:appcompat:1.1.0'
+    implementation 'androidx.appcompat:appcompat:1.6.1'
     implementation 'com.github.johnkil.android-progressfragment:progressfragment:1.4.0'
     implementation 'com.j256.ormlite:ormlite-core:4.45'
     implementation 'com.j256.ormlite:ormlite-android:4.45'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation 'com.karumi:dexter:6.0.0'
-    implementation 'com.google.firebase:firebase-analytics:17.4.3'
-    implementation 'com.google.firebase:firebase-crashlytics:18.2.1'
-    implementation 'com.google.firebase:firebase-crashlytics:17.1.0'
+    implementation 'com.google.firebase:firebase-analytics:21.5.0'
+    implementation 'com.google.firebase:firebase-crashlytics:18.5.1'
+    implementation 'com.android.support:multidex:1.0.3'
 }
