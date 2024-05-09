@@ -1,7 +1,9 @@
 package peace_shillong.kint;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -182,8 +184,25 @@ public class VerseFragment extends Fragment {
                 DatabaseManager manager = DatabaseManager.getInstance();
                 String strongs = manager.getStrongs(parts);
 
-                Toast toast = Toast.makeText(v.getContext(), strongs, Toast.LENGTH_LONG);
-                toast.show();
+//                Toast toast = Toast.makeText(v.getContext(), strongs, Toast.LENGTH_LONG);
+//                toast.show();
+                AlertDialog.Builder builder;
+                builder = new AlertDialog.Builder(v.getContext());
+                builder.setMessage(strongs).setTitle("Strong Interpretation:");
+
+                //Setting message manually and performing action on button click
+                builder.setMessage(strongs)
+                        .setCancelable(false)
+                        .setPositiveButton("Okay", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+//                                Toast.makeText(v.getContext(),"Thank You",
+//                                        Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                //Creating dialog box
+                AlertDialog alert = builder.create();
+                alert.setTitle("Strong:");
+                alert.show();
             }
         });
 

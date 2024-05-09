@@ -16,8 +16,8 @@ android {
         applicationId "peace_shillong.kint"
         minSdkVersion 21
         targetSdkVersion 33
-        versionCode 7
-        versionName "1.1.1"
+        versionCode 8
+        versionName "1.1.2"
         multiDexEnabled true
         //signingConfig signingConfigs.sign
     }
